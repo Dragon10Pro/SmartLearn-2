@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>SmartLearn Ultra | تعلم ذكي متعدد اللغات</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div id="loadingOverlay" class="loading-overlay"><div class="spinner"></div><p id="loadingMsg">جاري التحميل...</p></div>
+
+<!-- القائمة الجانبية -->
+<div id="sidebar" class="sidebar">
+    <div class="sidebar-header">
+        <h2><i class="fas fa-robot"></i> <span data-lang="app_name">SmartLearn Ultra</span></h2>
+        <button class="close-sidebar" onclick="toggleSidebar()"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="sidebar-user">
+        <i class="fas fa-user-circle"></i>
+        <div><h4 data-lang="welcome">مرحباً بك</h4><small data-lang="learn_language">تعلم اللغات</small></div>
+    </div>
+    <nav class="sidebar-nav">
+        <a href="#" onclick="showPage('dashboard'); toggleSidebar(); return false;" class="active">
+            <i class="fas fa-chart-line"></i><span data-lang="nav_dashboard">الرئيسية</span>
+        </a>
+        <a href="#" onclick="showPage('words'); toggleSidebar(); return false;">
+            <i class="fas fa-book"></i><span data-lang="nav_library">مكتبتي</span>
+        </a>
+        <a href="#" onclick="showPage('scientific'); toggleSidebar(); return false;">
+            <i class="fas fa-flask"></i><span data-lang="nav_scientific">مصطلحات علمية</span>
+            <span class="badge" id="sidebarScientificBadge">200+</span>
+        </a>
+        <a href="#" onclick="showPage('review'); toggleSidebar(); return false;">
+            <i class="fas fa-brain"></i><span data-lang="nav_review">مراجعة ذكية</span>
+            <span class="badge" id="sidebarReviewBadge">0</span>
+        </a>
+        <a href="#" onclick="showPage('quiz'); toggleSidebar(); return false;">
+            <i class="fas fa-gamepad"></i><span data-lang="nav_quiz">اختبارات</span>
+        </a>
+        <a href="#" onclick="showPage('stats'); toggleSidebar(); return false;">
+            <i class="fas fa-chart-simple"></i><span data-lang="nav_stats">إحصائيات</span>
+        </a>
+        <a href="#" onclick="showPage('ai'); toggleSidebar(); return false;">
+            <i class="fas fa-microchip"></i><span data-lang="nav_ai">AI مساعد</span>
+        </a>
+        <a href="#" onclick="showPage('categories'); toggleSidebar(); return false;">
+            <i class="fas fa-folder-tree"></i><span data-lang="nav_categories">المجالات</span>
+        </a>
+        <a href="#" onclick="showPage('settings'); toggleSidebar(); return false;">
+            <i class="fas fa-cog"></i><span data-lang="nav_settings">إعدادات</span>
+        </a>
+    </nav>
+    <div class="sidebar-footer">
+        <button class="btn-sidebar" onclick="loadDefaultCategories()"><i class="fas fa-database"></i> <span data-lang="btn_load_words">تحميل كلمات جاهزة</span></button>
+        <button class="btn-sidebar btn-scientific" onclick="loadScientificTerms()"><i class="fas fa-flask"></i> <span data-lang="btn_load_scientific">تحميل مصطلحات علمية</span></button>
+        <div class="language-selector">
+            <label><i class="fas fa-globe"></i> <span data-lang="language_label">اللغة</span>:</label>
+            <select id="languageSelect" onchange="changeLanguage(this.value)">
+                <option value="ar">العربية</option>
+                <option value="en">English</option>
+            </select>
+        </div>
+    </div>
+</div>
+
+<!-- المحتوى الرئيسي -->
+<div class="main-content" id="mainContent">
+    <div class="top-bar">
+        <button class="menu-btn" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+        <div class="top-bar-title"><span data-lang="app_name">SmartLearn Ultra</span></div>
+        <button class="theme-toggle" onclick="toggleDarkMode()"><i class="fas fa-moon"></i></button>
+    </div>
+
+    <div class="page-container">
+        <!-- Dashboard Page -->
+        <div id="dashboardPage" class="page active">
+            <h1 class="page-title"><i class="fas fa-chart-line"></i> <span data-lang="dashboard_title">لوحة التحكم</span></h1>
+            <div class="stats-grid" id="statsGrid"></div>
+            <div class="dashboard-cards">
+                <div class="card" onclick="showPage('quiz')"><i class="fas fa-gamepad"></i><h3 data-lang="quick_quiz">اختبار سريع</h3><p data-lang="test_yourself">اختبر معلوماتك</p></div>
+                <div class="card" onclick="showPage('review')"><i class="fas fa-brain"></i><h3 data-lang="smart_review">مراجعة ذكية</h3><p data-lang="review_due">راجع الكلمات المستحقة</p></div>
+                <div class="card" onclick="showPage('categories')"><i class="fas fa-folder-tree"></i><h3 data-lang="categories">المجالات</h3><p data-lang="explore">استكشف كلمات جديدة</p></div>
+                <div class="card" onclick="showPage('scientific')"><i class="fas fa-flask"></i><h3 data-lang="scientific_terms">مصطلحات علمية</h3><p data-lang="academic_terms">تعلم المصطلحات الأكاديمية</p></div>
+                <div class="card" onclick="showPage('ai')"><i class="fas fa-microchip"></i><h3 data-lang="ai_assistant">AI مساعد</h3><p data-lang="ai_desc">ترجمة وشرح ذكي</p></div>
+            </div>
+            <div class="card"><h3><i class="fas fa-chart-line"></i> <span data-lang="weekly_progress">تقدمك الأسبوعي</span></h3><canvas id="progressChart" height="200"></canvas></div>
+            <div class="card"><h3><i class="fas fa-lightbulb"></i> <span data-lang="daily_tip">نصيحة اليوم</span></h3><p id="dailyTip"></p></div>
+        </div>
+
+        <!-- Words Page -->
+        <div id="wordsPage" class="page">
+            <h1 class="page-title"><i class="fas fa-book"></i> <span data-lang="my_library">مكتبتي</span></h1>
+            <div class="action-bar">
+                <button class="btn-primary" onclick="openWordModal()"><i class="fas fa-plus"></i> <span data-lang="new_word">كلمة جديدة</span></button>
+                <button class="btn-outline" onclick="exportToCSV()"><i class="fas fa-download"></i> <span data-lang="export_csv">تصدير CSV</span></button>
+                <button class="btn-outline" onclick="openOCRModal()"><i class="fas fa-camera"></i> <span data-lang="from_image">من صورة</span></button>
+            </div>
+            <div class="search-bar"><i class="fas fa-search"></i><input type="text" id="searchInput" placeholder="بحث..." onkeyup="renderWords()"></div>
+            <div id="wordsList" class="words-list"></div>
+        </div>
+
+        <!-- Scientific Terms Page -->
+        <div id="scientificPage" class="page">
+            <h1 class="page-title"><i class="fas fa-flask"></i> <span data-lang="scientific_terms_title">المصطلحات العلمية</span></h1>
+            <div class="action-bar"><button class="btn-primary" onclick="loadScientificTerms()"><i class="fas fa-database"></i> <span data-lang="load_all_terms">تحميل جميع المصطلحات (200+ مصطلح)</span></button></div>
+            <div class="search-bar"><i class="fas fa-search"></i><input type="text" id="scientificSearchInput" placeholder="بحث في المصطلحات..." onkeyup="filterScientificTerms()"></div>
+            <div class="scientific-stats">
+                <div class="stat-badge">📚 <span id="scientificCount">0</span> <span data-lang="terms_available">مصطلح متاح</span></div>
+                <div class="stat-badge">✅ <span id="scientificAddedCount">0</span> <span data-lang="added_to_library">مضافة لمكتبتي</span></div>
+            </div>
+            <div id="scientificTermsList" class="scientific-terms-list"></div>
+        </div>
+
+        <!-- Review Page -->
+        <div id="reviewPage" class="page">
+            <h1 class="page-title"><i class="fas fa-brain"></i> <span data-lang="smart_review_title">مراجعة ذكية</span></h1>
+            <div class="card"><h3><span data-lang="due_today">الكلمات المستحقة اليوم</span></h3><p id="dueCountText">0 كلمة</p><div class="progress-bar"><div id="reviewProgress" class="progress-fill"></div></div></div>
+            <div id="reviewContainer" class="review-container"></div>
+        </div>
+
+        <!-- Quiz Page -->
+        <div id="quizPage" class="page">
+            <h1 class="page-title"><i class="fas fa-gamepad"></i> <span data-lang="quiz_title">اختبارات</span></h1>
+            <div class="quiz-config card">
+                <label><span data-lang="quiz_type">نوع الاختبار</span>:</label>
+                <select id="quizType" class="form-select">
+                    <option value="multiple">📖 <span data-lang="multiple_choice">اختر الترجمة</span></option>
+                    <option value="writing">✍️ <span data-lang="writing">اكتب الترجمة</span></option>
+                    <option value="flashcard">🃏 <span data-lang="flashcards">بطاقات فلاش</span></option>
+                    <option value="truefalse">✅ <span data-lang="truefalse">صح / خطأ</span></option>
+                </select>
+                <label class="mt-2"><span data-lang="word_source">مصدر الكلمات</span>:</label>
+                <select id="quizSource" class="form-select">
+                    <option value="all"><span data-lang="all_words">جميع الكلمات</span></option>
+                    <option value="due"><span data-lang="due_only">المستحقة فقط</span></option>
+                </select>
+                <button class="btn-primary w-100 mt-3" onclick="startQuiz()"><i class="fas fa-play"></i> <span data-lang="start_quiz">بدء الاختبار</span></button>
+            </div>
+            <div id="quizContainer" class="quiz-container"></div>
+            <div id="quizResult"></div>
+        </div>
+
+        <!-- Stats Page -->
+        <div id="statsPage" class="page">
+            <h1 class="page-title"><i class="fas fa-chart-simple"></i> <span data-lang="stats_title">إحصائيات</span></h1>
+            <div class="card"><h3><span data-lang="level_distribution">توزيع المستويات</span></h3><canvas id="levelChart" height="200"></canvas></div>
+        </div>
+
+        <!-- AI Page -->
+        <div id="aiPage" class="page">
+            <h1 class="page-title"><i class="fas fa-microchip"></i> <span data-lang="ai_assistant_title">AI مساعد (DeepSeek)</span></h1>
+            <div class="ai-grid">
+                <div class="card"><h3><i class="fas fa-language"></i> <span data-lang="smart_translation">ترجمة ذكية</span></h3><input type="text" id="aiTranslateText" class="form-input" placeholder="أدخل نصاً للترجمة..."><button class="btn-primary mt-2" onclick="aiTranslate()"><span data-lang="translate">ترجمة</span></button><div id="aiTranslateResult" class="mt-2"></div></div>
+                <div class="card"><h3><i class="fas fa-magic"></i> <span data-lang="generate_example">توليد جملة مثال</span></h3><input type="text" id="aiExampleWord" class="form-input" placeholder="أدخل كلمة..."><button class="btn-primary mt-2" onclick="aiGenerateExample()"><span data-lang="generate">توليد جملة</span></button><div id="aiExampleResult" class="mt-2"></div></div>
+                <div class="card"><h3><i class="fas fa-comment-dots"></i> <span data-lang="explain_term">شرح مصطلح</span></h3><input type="text" id="aiExplainTerm" class="form-input" placeholder="أدخل مصطلحاً..."><button class="btn-primary mt-2" onclick="aiExplainTerm()"><span data-lang="explain">شرح</span></button><div id="aiExplainResult" class="mt-2"></div></div>
+                <div class="card"><h3><i class="fas fa-id-card"></i> <span data-lang="generate_flashcard">توليد بطاقة تعليمية</span></h3><input type="text" id="aiFlashcardWord" class="form-input" placeholder="أدخل كلمة..."><button class="btn-primary mt-2" onclick="aiGenerateFlashcard()"><span data-lang="generate_card">توليد بطاقة</span></button><div id="aiFlashcardResult" class="mt-2"></div></div>
+            </div>
+        </div>
+
+        <!-- Categories Page -->
+        <div id="categoriesPage" class="page">
+            <h1 class="page-title"><i class="fas fa-folder-tree"></i> <span data-lang="categories_title">المجالات</span></h1>
+            <div class="categories-grid" id="categoriesGrid"></div>
+            <div id="categoryWordsContainer" class="mt-3"></div>
+        </div>
+
+        <!-- Settings Page -->
+        <div id="settingsPage" class="page">
+            <h1 class="page-title"><i class="fas fa-cog"></i> <span data-lang="settings_title">الإعدادات</span></h1>
+            <div class="card"><h3><i class="fas fa-image"></i> <span data-lang="image_settings">إعدادات الصور</span></h3><label class="switch"><input type="checkbox" id="enableImageFetch" onchange="toggleImageFetch()"> <span data-lang="enable_auto_images">تمكين جلب الصور التلقائي (يتطلب إنترنت)</span></label><p class="text-muted mt-2">📸 عند التفعيل، سيتم جلب صورة لكل كلمة من Unsplash (مجاني)</p><button class="btn-outline mt-2" onclick="fetchMissingImages()"><i class="fas fa-image"></i> <span data-lang="fetch_images_for_all">جلب الصور لجميع الكلمات</span></button></div>
+            <div class="card"><h3><i class="fas fa-microphone-alt"></i> <span data-lang="audio_settings">إعدادات الصوت</span></h3><label><span data-lang="speech_rate">سرعة النطق</span>: <input type="range" id="speechRate" min="0.5" max="2" step="0.1" value="0.9"></label><button class="btn-outline mt-2" onclick="testSpeech()"><span data-lang="test_audio">اختبار الصوت</span></button></div>
+            <div class="card"><h3><i class="fas fa-database"></i> <span data-lang="data_management">إدارة البيانات</span></h3><button class="btn-danger" onclick="clearAllData()"><span data-lang="delete_all">حذف جميع الكلمات</span></button><button class="btn-outline" onclick="exportAllData()"><span data-lang="export_json">تصدير JSON</span></button></div>
+        </div>
+    </div>
+</div>
+
+<!-- نوافذ منبثقة -->
+<div id="wordModal" class="modal"><div class="modal-content"><div class="modal-header"><h3><span data-lang="new_word_modal">➕ كلمة جديدة</span></h3><button class="close-btn" onclick="closeWordModal()">✕</button></div><div class="modal-body"><input type="text" id="wordInput" class="form-input" placeholder="الكلمة"><input type="text" id="translationInput" class="form-input" placeholder="الترجمة"><textarea id="exampleInput" class="form-input" placeholder="جملة مثال"></textarea><select id="categoryInput" class="form-input"><option value="عام">عام</option><option value="أعمال">أعمال</option><option value="تقنية">تقنية</option><option value="سفر">سفر</option><option value="طبي">طبي</option><option value="علمي">مصطلحات علمية</option></select><div class="image-option"><label><input type="checkbox" id="fetchImageCheckbox"> <span data-lang="fetch_image_check">جلب صورة من الإنترنت (إن أمكن)</span></label></div><button class="btn-primary w-100" onclick="saveWord()"><span data-lang="save_word">حفظ الكلمة</span></button></div></div></div>
+<div id="ocrModal" class="modal"><div class="modal-content"><div class="modal-header"><h3><span data-lang="ocr_title">📸 استخراج من صورة</span></h3><button class="close-btn" onclick="closeOCRModal()">✕</button></div><div class="modal-body"><input type="file" id="ocrImage" accept="image/*" class="form-input"><button class="btn-primary w-100 mt-2" onclick="extractTextFromImageOCR()"><span data-lang="extract_text">استخراج النص وإضافة الكلمات</span></button><div id="ocrResult" class="mt-2"></div></div></div></div>
+
+<script src="words-db.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
